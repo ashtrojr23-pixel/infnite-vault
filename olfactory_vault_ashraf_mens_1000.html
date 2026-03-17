@@ -1,0 +1,891 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap');
+:root{--navy:#0a1628;--dark-blue:#0d1f3c;--mid-blue:#1a3a5c;--light-blue:#2a5280;--sage:#6b8f71;--sage-light:#a8c4ac;--mint:#7ec8c0;--mint-light:#b2ddd9;--gold:#c9a96e;--gold-light:#e8d5b0;--text-primary:#f0ece3;--text-secondary:#9db4c8;--text-muted:#5a7a96;--border:rgba(42,82,128,0.4);--card-bg:rgba(13,31,60,0.85);}
+*{box-sizing:border-box;margin:0;padding:0;}
+#vault{background:var(--navy);min-height:100vh;font-family:'Montserrat',sans-serif;color:var(--text-primary);padding-bottom:60px;}
+.vault-header{text-align:center;padding:44px 24px 28px;border-bottom:1px solid var(--border);background:#060e1d;}
+.vault-eyebrow{font-size:10px;font-weight:500;letter-spacing:.35em;color:var(--gold);text-transform:uppercase;margin-bottom:14px;}
+.vault-title{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,5vw,50px);font-weight:300;color:var(--text-primary);line-height:1.1;letter-spacing:.02em;}
+.vault-title em{font-style:italic;color:var(--mint-light);}
+.vault-subtitle{font-size:11px;letter-spacing:.2em;color:var(--text-muted);margin-top:8px;text-transform:uppercase;}
+.vault-count{display:inline-block;margin-top:16px;padding:5px 18px;border:1px solid rgba(201,169,110,.3);font-size:11px;letter-spacing:.12em;color:var(--gold-light);}
+.controls{padding:16px 16px 10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;position:sticky;top:0;z-index:100;background:rgba(10,22,40,.97);border-bottom:1px solid var(--border);}
+.filter-label{font-size:9px;letter-spacing:.2em;color:var(--text-muted);text-transform:uppercase;align-self:center;}
+.filter-group{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
+.btn{background:transparent;border:1px solid var(--border);color:var(--text-secondary);font-family:'Montserrat',sans-serif;font-size:9px;letter-spacing:.1em;padding:5px 11px;cursor:pointer;transition:all .2s;text-transform:uppercase;border-radius:2px;}
+.btn:hover{border-color:var(--mint);color:var(--mint);}
+.btn.active{background:var(--mid-blue);border-color:var(--mint);color:var(--mint-light);}
+.btn.cp.active{background:rgba(30,10,60,.6);border-color:#9b7fd4;color:#c9b2e8;}
+.btn.cedp.active{background:rgba(10,50,60,.6);border-color:var(--mint);color:var(--mint-light);}
+.btn.cedt.active{background:rgba(10,40,50,.6);border-color:#7ab8d4;color:#aad4e8;}
+.btn.cedc.active{background:rgba(10,50,30,.6);border-color:var(--sage);color:var(--sage-light);}
+.search-box{background:rgba(26,58,92,.3);border:1px solid var(--border);color:var(--text-primary);font-family:'Montserrat',sans-serif;font-size:11px;padding:6px 12px;width:190px;letter-spacing:.04em;border-radius:2px;outline:none;}
+.search-box:focus{border-color:var(--mint);}
+.search-box::placeholder{color:var(--text-muted);}
+.sort-select{background:rgba(26,58,92,.3);border:1px solid var(--border);color:var(--text-secondary);font-family:'Montserrat',sans-serif;font-size:9px;padding:6px 8px;cursor:pointer;letter-spacing:.06em;border-radius:2px;outline:none;}
+.stats-bar{display:flex;justify-content:center;gap:28px;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.stat-item{text-align:center;}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--mint-light);display:block;}
+.stat-lbl{font-size:9px;letter-spacing:.12em;color:var(--text-muted);text-transform:uppercase;}
+.section-header{display:flex;align-items:center;gap:14px;padding:24px 20px 10px;}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:300;font-style:italic;color:var(--text-primary);white-space:nowrap;}
+.section-line{flex:1;height:1px;background:var(--border);}
+.section-count{font-size:9px;letter-spacing:.1em;color:var(--text-muted);white-space:nowrap;}
+.perfume-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:1px;padding:0 14px;}
+.pc{background:var(--card-bg);border:1px solid var(--border);padding:15px 14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.pc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity .2s;}
+.pc:hover{background:rgba(26,58,92,.5);}
+.pc:hover::before{opacity:1;}
+.cc-p::before{background:linear-gradient(90deg,var(--gold),transparent);}
+.cc-edp::before{background:linear-gradient(90deg,#9b7fd4,transparent);}
+.cc-edt::before{background:linear-gradient(90deg,var(--mint),transparent);}
+.cc-edc::before{background:linear-gradient(90deg,var(--sage),transparent);}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.cbadge{font-size:8px;letter-spacing:.1em;padding:2px 7px;border-radius:1px;text-transform:uppercase;font-weight:500;}
+.bp{background:rgba(201,169,110,.15);color:var(--gold);border:1px solid rgba(201,169,110,.3);}
+.bedp{background:rgba(155,127,212,.15);color:#c9b2e8;border:1px solid rgba(155,127,212,.3);}
+.bedt{background:rgba(126,200,192,.15);color:var(--mint);border:1px solid rgba(126,200,192,.3);}
+.bedc{background:rgba(107,143,113,.15);color:var(--sage-light);border:1px solid rgba(107,143,113,.3);}
+.fdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.pname{font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:400;color:var(--text-primary);line-height:1.3;margin-bottom:3px;}
+.phouse{font-size:9px;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+.notes-row{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:7px;}
+.ntag{font-size:8px;letter-spacing:.04em;color:var(--text-secondary);background:rgba(42,82,128,.2);border:1px solid rgba(42,82,128,.3);padding:2px 6px;border-radius:1px;}
+.sbar{height:2px;background:rgba(42,82,128,.3);border-radius:1px;margin-top:8px;}
+.sfill{height:100%;border-radius:1px;}
+.sp{background:linear-gradient(90deg,var(--gold),#e8c87a);}
+.sedp{background:linear-gradient(90deg,#9b7fd4,#c0a8e8);}
+.sedt{background:linear-gradient(90deg,var(--mint),var(--mint-light));}
+.sedc{background:linear-gradient(90deg,var(--sage),var(--sage-light));}
+.slbl{font-size:8px;letter-spacing:.06em;color:var(--text-muted);text-align:right;margin-top:2px;text-transform:uppercase;}
+.empty-msg{text-align:center;padding:60px 20px;color:var(--text-muted);font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;width:100%;}
+.rc{font-size:10px;letter-spacing:.06em;color:var(--text-muted);padding:8px 22px 0;text-align:right;}
+.legend{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:10px 20px;border-bottom:1px solid var(--border);}
+.li{display:flex;align-items:center;gap:5px;font-size:9px;letter-spacing:.08em;color:var(--text-muted);text-transform:uppercase;}
+.ldot{width:7px;height:7px;border-radius:50%;}
+</style>
+
+<div id="vault">
+<div class="vault-header">
+  <div class="vault-eyebrow">Gentlemen's Private Collection · Masculine Olfactory Archive</div>
+  <h1 class="vault-title">The Olfactory <em>Vault</em></h1>
+  <div class="vault-subtitle">Curated Olfactory Identity for Ashraf — Men's Edition</div>
+  <div class="vault-count" id="total-count">Loading vault...</div>
+</div>
+
+<div class="controls">
+  <input class="search-box" id="search" type="text" placeholder="Search name, house, note..." />
+  <select class="sort-select" id="sort-select">
+    <option value="name">Sort: Name A–Z</option>
+    <option value="house">Sort: House</option>
+    <option value="strength-desc">Sort: Strongest First</option>
+    <option value="strength-asc">Sort: Lightest First</option>
+    <option value="family">Sort: Scent Family</option>
+  </select>
+  <div class="filter-group">
+    <span class="filter-label">Strength</span>
+    <button class="btn active" data-conc="all" onclick="fConc('all',this)">All</button>
+    <button class="btn cp" data-conc="Parfum" onclick="fConc('Parfum',this)">Parfum</button>
+    <button class="btn cedp" data-conc="EDP" onclick="fConc('EDP',this)">EDP</button>
+    <button class="btn cedt" data-conc="EDT" onclick="fConc('EDT',this)">EDT</button>
+    <button class="btn cedc" data-conc="EDC" onclick="fConc('EDC',this)">EDC</button>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">Family</span>
+    <button class="btn active" data-fam="all" onclick="fFam('all',this)">All</button>
+    <button class="btn" data-fam="Woody" onclick="fFam('Woody',this)">Woody</button>
+    <button class="btn" data-fam="Oriental" onclick="fFam('Oriental',this)">Oriental</button>
+    <button class="btn" data-fam="Fougère" onclick="fFam('Fougère',this)">Fougère</button>
+    <button class="btn" data-fam="Fresh" onclick="fFam('Fresh',this)">Fresh</button>
+    <button class="btn" data-fam="Aquatic" onclick="fFam('Aquatic',this)">Aquatic</button>
+    <button class="btn" data-fam="Chypre" onclick="fFam('Chypre',this)">Chypre</button>
+    <button class="btn" data-fam="Aromatic" onclick="fFam('Aromatic',this)">Aromatic</button>
+    <button class="btn" data-fam="Leather" onclick="fFam('Leather',this)">Leather</button>
+    <button class="btn" data-fam="Gourmand" onclick="fFam('Gourmand',this)">Gourmand</button>
+    <button class="btn" data-fam="Spicy" onclick="fFam('Spicy',this)">Spicy</button>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="li"><div class="ldot" style="background:#c8a060;"></div>Woody</div>
+  <div class="li"><div class="ldot" style="background:#9b7fd4;"></div>Oriental</div>
+  <div class="li"><div class="ldot" style="background:#6b8f71;"></div>Fougère</div>
+  <div class="li"><div class="ldot" style="background:#7ec8c0;"></div>Fresh</div>
+  <div class="li"><div class="ldot" style="background:#7ab8d4;"></div>Aquatic</div>
+  <div class="li"><div class="ldot" style="background:#a8c4ac;"></div>Chypre</div>
+  <div class="li"><div class="ldot" style="background:#8aacb8;"></div>Aromatic</div>
+  <div class="li"><div class="ldot" style="background:#b8906a;"></div>Leather</div>
+  <div class="li"><div class="ldot" style="background:#d4a0b0;"></div>Gourmand</div>
+  <div class="li"><div class="ldot" style="background:#e8a060;"></div>Spicy</div>
+</div>
+
+<div class="stats-bar" id="stats-bar"></div>
+<div class="rc" id="rc"></div>
+<div id="cc"></div>
+</div>
+
+<script>
+const FC={Woody:'#c8a060',Oriental:'#9b7fd4',Fougère:'#6b8f71',Fresh:'#7ec8c0',Aquatic:'#7ab8d4',Chypre:'#a8c4ac',Aromatic:'#8aacb8',Leather:'#b8906a',Gourmand:'#d4a0b0',Spicy:'#e8a060'};
+const ST={Parfum:{p:100,l:'20-30% conc.',c:'p'},EDP:{p:80,l:'15-20% conc.',c:'edp'},EDT:{p:55,l:'5-15% conc.',c:'edt'},EDC:{p:35,l:'2-5% conc.',c:'edc'}};
+const CL={Parfum:'Parfum — Pure Perfume',EDP:'Eau de Parfum',EDT:'Eau de Toilette',EDC:'Eau de Cologne'};
+
+const P=[
+['Santal 33','Le Labo','EDP','Woody',['Sandalwood','Cardamom','Iris']],
+['Another 13','Le Labo','EDP','Woody',['Ambroxan','Jasmine','Musk']],
+['Bergamote 22','Le Labo','EDP','Fresh',['Bergamot','Vetiver','Musk']],
+['Thé Noir 29','Le Labo','EDP','Aromatic',['Black Tea','Vetiver','Pepper']],
+['Patchouli 24','Le Labo','EDP','Woody',['Patchouli','Birch','Vanilla']],
+['Vetiver 46','Le Labo','EDP','Woody',['Vetiver','Cedarwood','Musk']],
+['Oud 27','Le Labo','EDP','Oriental',['Oud','Gaiac Wood','Amber']],
+['Neroli 36','Le Labo','EDP','Fresh',['Neroli','Musk','Petitgrain']],
+['Tobacco Vanille','Tom Ford','EDP','Oriental',['Tobacco','Vanilla','Cocoa']],
+['Oud Wood','Tom Ford','EDP','Woody',['Oud','Sandalwood','Rosewood']],
+['Tuscan Leather','Tom Ford','EDP','Leather',['Leather','Saffron','Raspberry']],
+['Noir de Noir','Tom Ford','EDP','Oriental',['Oud','Black Rose','Vanilla']],
+['Noir Extreme','Tom Ford','EDP','Oriental',['Neroli','Amber','Sandalwood']],
+['Grey Vetiver','Tom Ford','EDT','Woody',['Vetiver','Sage','Oakmoss']],
+['Costa Azzurra','Tom Ford','EDP','Aquatic',['Cypress','Oakmoss','Amber']],
+['Oud Minerale','Tom Ford','EDP','Woody',['Oud','Sea Accord','Vetiver']],
+['Champaca Absolute','Tom Ford','EDP','Floral',['Champaca','Magnolia','Sandalwood']],
+['White Suede','Tom Ford','EDP','Leather',['Rose','Suede','Musk']],
+['Italian Cypress','Tom Ford','EDP','Woody',['Cypress','Cedarwood','Vetiver']],
+['Beau de Jour','Tom Ford','EDP','Fougère',['Lavender','Oakmoss','Thyme']],
+['Sauvage EDT','Dior','EDT','Fougère',['Bergamot','Pepper','Ambroxan']],
+['Sauvage EDP','Dior','EDP','Fougère',['Lavender','Pepper','Ambroxan']],
+['Sauvage Parfum','Dior','Parfum','Fougère',['Sandalwood','Pepper','Hawthorn']],
+['Fahrenheit','Dior','EDT','Woody',['Violet Leaf','Leather','Cedar']],
+['Homme Intense','Dior','EDP','Aromatic',['Iris','Lavender','Cedar']],
+['Homme','Dior','EDT','Aromatic',['Iris','Ambrette','Cedar']],
+['Homme Parfum','Dior','Parfum','Aromatic',['Iris','Vetiver','Warm Spice']],
+['Jules','Dior','EDT','Chypre',['Galbanum','Clary Sage','Oakmoss']],
+['Eau Noire','Dior','EDT','Aromatic',['Lavender','Black Tea','Sandalwood']],
+['Bleu de Chanel EDT','Chanel','EDT','Woody',['Citrus','Incense','Sandalwood']],
+['Bleu de Chanel EDP','Chanel','EDP','Woody',['Ginger','Vetiver','Sandalwood']],
+['Bleu de Chanel Parfum','Chanel','Parfum','Woody',['Geranium','Vetiver','Cedar']],
+['Allure Homme Sport','Chanel','EDT','Fresh',['Mandarin','Pepper','Cedar']],
+['Allure Homme','Chanel','EDT','Fougère',['Bergamot','Lavender','Oakmoss']],
+['Egoiste','Chanel','EDT','Woody',['Rosewood','Sandalwood','Amber']],
+['Antaeus','Chanel','EDT','Chypre',['Basil','Juniper','Oakmoss']],
+['Pour Monsieur','Chanel','EDT','Chypre',['Neroli','Lemon','Oakmoss']],
+['Aventus','Creed','EDP','Chypre',['Pineapple','Birch','Oakmoss']],
+['Green Irish Tweed','Creed','EDP','Fougère',['Violet Leaf','Ambergris','Sandalwood']],
+['Silver Mountain Water','Creed','EDP','Fresh',['Green Tea','Bergamot','Galbanum']],
+['Viking','Creed','EDP','Woody',['Cinnamon','Vetiver','Cedar']],
+['Millisime Imperial','Creed','EDP','Aquatic',['Iris','Melon','Musk']],
+['Original Vetiver','Creed','EDT','Woody',['Vetiver','Grapefruit','Musk']],
+['Bois du Portugal','Creed','EDP','Woody',['Lavender','Cedarwood','Sandalwood']],
+['Royal Oud','Creed','EDP','Woody',['Oud','Cedrus Wood','Pink Pepper']],
+['Acqua Originale','Creed','EDP','Aquatic',['Calabrian Bergamot','Musk','Ambergris']],
+['Tabarome','Creed','EDT','Chypre',['Tobacco','Sandalwood','Clary Sage']],
+['Viking Cologne','Creed','EDC','Fresh',['Bergamot','Mint','Musk']],
+['Acqua di Giò EDT','Giorgio Armani','EDT','Aquatic',['Marine','Bergamot','Cedar']],
+['Acqua di Giò Profumo','Giorgio Armani','Parfum','Aquatic',['Incense','Geranium','Patchouli']],
+['Acqua di Giò Profondo','Giorgio Armani','EDP','Aquatic',['Marine','Mineral','Patchouli']],
+['Armani Code EDT','Giorgio Armani','EDT','Oriental',['Bergamot','Olive','Tonka Bean']],
+['Armani Code EDP','Giorgio Armani','EDP','Oriental',['Bergamot','Apple Wood','Tonka']],
+['Armani Code Parfum','Giorgio Armani','Parfum','Oriental',['Green Cardamom','Tobacco','Tonka']],
+['Armani Privé Oud Royal','Giorgio Armani','EDP','Oriental',['Oud','Myrrh','Benzoin']],
+['Armani Privé Bois d\'Encens','Giorgio Armani','EDP','Woody',['Incense','Sandalwood','Cedar']],
+['Emporio He','Giorgio Armani','EDT','Aromatic',['Bergamot','Lavender','Cedar']],
+['Terre d\'Hermès EDT','Hermès','EDT','Woody',['Grapefruit','Pepper','Vetiver']],
+['Terre d\'Hermès EDP','Hermès','EDP','Woody',['Leather','Flint','Vetiver']],
+['Terre d\'Hermès Parfum','Hermès','Parfum','Woody',['Cedar','Pepper','Vetiver']],
+['Voyage d\'Hermès EDT','Hermès','EDT','Woody',['Citrus','Amber','Cedar']],
+['Voyage d\'Hermès EDP','Hermès','EDP','Woody',['Cardamom','Vetiver','Cedar']],
+['H24','Hermès','EDP','Fresh',['Narcissus','Clary Sage','Metal']],
+['Bel Ami','Hermès','EDT','Leather',['Leather','Birch','Honey']],
+['Equipage','Hermès','EDT','Chypre',['Geranium','Clove','Vetiver']],
+['Un Jardin sur le Nil','Hermès','EDT','Fresh',['Lotus','Tomato','Grapefruit']],
+['Eau de Gentiane Blanche','Hermès','EDC','Fresh',['Gentian','White Musk','Iris']],
+['L\'Homme EDT','YSL','EDT','Woody',['Ginger','Bergamot','Tonka']],
+['La Nuit de L\'Homme','YSL','EDT','Oriental',['Cardamom','Cedar','Coumarin']],
+['La Nuit de L\'Homme EDP','YSL','EDP','Oriental',['Cardamom','Lavender','Coumarin']],
+['Myslf','YSL','EDP','Woody',['Bergamot','Cardamom','Sandalwood']],
+['Y EDP','YSL','EDP','Fougère',['Apple','Ginger','Fir Balsam']],
+['Y EDT','YSL','EDT','Fougère',['Apple','Sage','Cedarwood']],
+['Kouros','YSL','EDT','Fougère',['Aldehydes','Sage','Vetiver']],
+['Jazz','YSL','EDT','Fougère',['Mandarin','Lavender','Oakmoss']],
+['Opium Pour Homme','YSL','EDT','Oriental',['Pepper','Incense','Vanilla']],
+['M7 Oud Absolu','YSL','EDT','Oriental',['Oud','Dry Wood','Amber']],
+['Spicebomb EDT','Viktor & Rolf','EDT','Oriental',['Tobacco','Chilli','Vetiver']],
+['Spicebomb Extreme','Viktor & Rolf','EDP','Oriental',['Tobacco','Lavender','Vanilla']],
+['Spicebomb Infrared','Viktor & Rolf','EDT','Spicy',['Pomelo','Red Pepper','Sandalwood']],
+['Spicebomb Night Vision','Viktor & Rolf','EDT','Fougère',['Cardamom','Vetiver','Musk']],
+['Bad Boy','Carolina Herrera','EDT','Woody',['Bergamot','Sage','Vetiver']],
+['Bad Boy Le Parfum','Carolina Herrera','EDP','Oriental',['Cardamom','Cacao','Vetiver']],
+['212 Men','Carolina Herrera','EDT','Aromatic',['Cardamom','Lavender','Musk']],
+['CH Men','Carolina Herrera','EDT','Woody',['Pineapple','Carrot','Sandalwood']],
+['1 Million EDT','Paco Rabanne','EDT','Oriental',['Blood Mandarin','Cinnamon','Leather']],
+['1 Million EDP','Paco Rabanne','EDP','Oriental',['Red Mandarin','Rose','Woody Notes']],
+['1 Million Parfum','Paco Rabanne','Parfum','Oriental',['Tobacco','Leather','Amber']],
+['Phantom','Paco Rabanne','EDT','Woody',['Lemon','Lavender','Vetiver']],
+['Phantom EDP','Paco Rabanne','EDP','Woody',['Roasted Coffee','Vetiver','Sandalwood']],
+['Invictus','Paco Rabanne','EDT','Aquatic',['Marine','Grapefruit','Guaiac Wood']],
+['Invictus Intense','Paco Rabanne','EDT','Aquatic',['Grapefruit','Bay Leaf','Ambergris']],
+['Invictus Legend','Paco Rabanne','EDP','Aquatic',['White Pepper','Silver Apple','Ambergris']],
+['Invictus Platinum','Paco Rabanne','EDP','Woody',['Pepper','Leather','Vetiver']],
+['XS Pour Homme','Paco Rabanne','EDT','Fougère',['Cardamom','Lavender','Amber']],
+['Pour Homme Versace','Versace','EDT','Woody',['Bergamot','Citrus','Tonka']],
+['Eros EDT','Versace','EDT','Woody',['Mint','Apple','Tonka']],
+['Eros EDP','Versace','EDP','Woody',['Lemon','Ambroxan','Tonka']],
+['Eros Flame','Versace','EDP','Woody',['Orange','Geranium','Sandalwood']],
+['Dylan Blue','Versace','EDT','Aquatic',['Grapefruit','Violet Leaf','Saffron']],
+['The Dreamer','Versace','EDT','Fougère',['Tobacco','Iris','Vanilla']],
+['Man Eau Fraîche','Versace','EDT','Fresh',['Lemon','Sea Notes','Vetiver']],
+['Pour Homme Dylan Blue EDP','Versace','EDP','Aquatic',['Violet Leaf','Musk','Amber']],
+['Polo Blue EDT','Ralph Lauren','EDT','Aquatic',['Melon','Sage','Suede']],
+['Polo Red EDT','Ralph Lauren','EDT','Woody',['Red Grapefruit','Saffron','Cedar']],
+['Polo Black','Ralph Lauren','EDT','Oriental',['Mango','Tarragon','Patchouli']],
+['Polo Blue EDP','Ralph Lauren','EDP','Aquatic',['Basil','Water Hyacinth','Cedar']],
+['Ralph Men','Ralph Lauren','EDT','Fougère',['Pineapple','Mint','Sandalwood']],
+['Polo Green','Ralph Lauren','EDT','Chypre',['Basil','Leather','Oakmoss']],
+['Romance Men','Ralph Lauren','EDT','Fougère',['Calone','Sage','Suede']],
+['Purple Label','Ralph Lauren','EDT','Woody',['Bergamot','Lily','Vetiver']],
+['The One Men EDT','Dolce & Gabbana','EDT','Oriental',['Cardamom','Ginger','Amber']],
+['The One Men EDP','Dolce & Gabbana','EDP','Oriental',['Grapefruit','Cardamom','Amber']],
+['Light Blue Pour Homme','Dolce & Gabbana','EDT','Fresh',['Sicilian Mandarin','Pepper','Rosewood']],
+['K by Dolce EDP','Dolce & Gabbana','EDP','Woody',['Cardamom','Juniper','Patchouli']],
+['Pour Homme DG','Dolce & Gabbana','EDT','Woody',['Bergamot','Tobacco','Cedar']],
+['Boss Bottled','Hugo Boss','EDT','Woody',['Apple','Cinnamon','Sandalwood']],
+['Boss The Scent','Hugo Boss','EDT','Oriental',['Ginger','Maninka Fruit','Leather']],
+['Boss Bottled EDP','Hugo Boss','EDP','Woody',['Sandalwood','Vetiver','Amber']],
+['Boss Bottled Parfum','Hugo Boss','Parfum','Woody',['Bergamot','Cedarwood','Sandalwood']],
+['BOSS Number One','Hugo Boss','EDT','Fougère',['Bergamot','Lavender','Sandalwood']],
+['BOSS Infinite','Hugo Boss','EDP','Woody',['Cardamom','Vetiver','Cedarwood']],
+['Boss Orange Men','Hugo Boss','EDT','Fresh',['Citrus','Peach','Sandalwood']],
+['Hugo Man','Hugo Boss','EDT','Fougère',['Apple','Mint','Cedarwood']],
+['CK One','Calvin Klein','EDT','Fresh',['Bergamot','Cardamom','Musk']],
+['Eternity Men','Calvin Klein','EDT','Fougère',['Lavender','Sage','Sandalwood']],
+['Euphoria Men','Calvin Klein','EDT','Woody',['Pepper','Sage','Suede']],
+['Obsession Men','Calvin Klein','EDT','Oriental',['Vanilla','Amber','Musk']],
+['Calvin Klein Man','Calvin Klein','EDP','Woody',['Apple','Lily of Valley','Patchouli']],
+['CK Free','Calvin Klein','EDT','Woody',['Whiskey','Sandalwood','Tobacco']],
+['CK Be','Calvin Klein','EDT','Fresh',['Bergamot','Spearmint','Musk']],
+['Defy EDT','Dior','EDT','Woody',['Bergamot','Cedar','Lavender']],
+['Defy EDP','Dior','EDP','Woody',['Bergamot','Violet','Sandalwood']],
+['Baccarat Rouge 540 EDP','Maison Francis K','EDP','Floral',['Jasmine','Saffron','Amberwood']],
+['Baccarat Rouge 540 Parfum','Maison Francis K','Parfum','Floral',['Jasmine','Saffron','Cedarwood']],
+['Oud Satin Mood','Maison Francis K','EDP','Oriental',['Oud','Rose','Vanilla']],
+['Grand Soir','Maison Francis K','EDP','Oriental',['Amber','Benzoin','Vanilla']],
+['Gentle Fluidity Silver','Maison Francis K','EDP','Woody',['Musk','Juniper','Vanilla']],
+['Gentle Fluidity Gold','Maison Francis K','EDP','Oriental',['Nutmeg','Vanilla','Musk']],
+['Amyris Homme','Maison Francis K','EDP','Woody',['Amyris','Cardamom','Cypriol']],
+['Aqua Universalis','Maison Francis K','EDT','Fresh',['White Musks','Freesia','Cedar']],
+['Bois d\'Orage','Maison Francis K','EDP','Woody',['Galbanum','Musk','Vetiver']],
+['Cool Water','Davidoff','EDT','Aquatic',['Aquatic','Lavender','Musk']],
+['Zino','Davidoff','EDT','Woody',['Lavender','Vetiver','Sandalwood']],
+['Champion','Davidoff','EDT','Fougère',['Grapefruit','Juniper','Vetiver']],
+['Silver Shadow','Davidoff','EDT','Aromatic',['Bergamot','Sage','Musk']],
+['Adventure','Davidoff','EDT','Woody',['Juniper','Leather','Vetiver']],
+['Coolwater Intense','Davidoff','EDP','Aquatic',['Pear','Lavender','Amber']],
+['L\'Eau d\'Issey Homme','Issey Miyake','EDT','Aquatic',['Freesia','Calone','Sandalwood']],
+['Nuit d\'Issey','Issey Miyake','EDT','Woody',['Bergamot','Black Pepper','Leather']],
+['L\'Eau d\'Issey Pure','Issey Miyake','EDT','Fresh',['Hinoki','Galbanum','Musk']],
+['Fusion d\'Issey','Issey Miyake','EDT','Woody',['Eucalyptus','Cedar','Mineral Notes']],
+['A*Men','Thierry Mugler','EDP','Gourmand',['Coffee','Patchouli','Caramel']],
+['B*Men','Thierry Mugler','EDT','Fougère',['Lavender','Vetiver','Amber']],
+['Kenzo Homme','Kenzo','EDT','Woody',['Juniper','Cedarwood','Amber']],
+['L\'Eau par Kenzo','Kenzo','EDT','Fresh',['Coriander','Watercress','Cedar']],
+['Jungle Homme','Kenzo','EDT','Oriental',['Bamboo','Spices','Amber']],
+['Flower by Kenzo Homme','Kenzo','EDT','Fresh',['Bergamot','Galbanum','Sandalwood']],
+['Fougère Royale','Houbigant','EDP','Fougère',['Lavender','Coumarin','Oakmoss']],
+['Quelques Fleurs Homme','Houbigant','EDT','Floral',['Rose','Sandalwood','Amber']],
+['Oud Ispahan','Dior','EDP','Oriental',['Oud','Rose','Labdanum']],
+['Leather Oud','Dior','EDP','Leather',['Leather','Oud','Amber']],
+['Rose Oud Kilian','Kilian','EDP','Oriental',['Rose','Oud','Patchouli']],
+['Back to Black','Kilian','EDP','Oriental',['Honey','Tobacco','Rose']],
+['Black Phantom','Kilian','EDP','Gourmand',['Coffee','Rum','Sandalwood']],
+['Angels Share','Kilian','EDP','Gourmand',['Cognac','Cinnamon','Tonka']],
+['Straight to Heaven','Kilian','Parfum','Oriental',['Rum','Bergamot','Sandalwood']],
+['In the City of Sin','Kilian','EDP','Oriental',['Ambrette','Benzyl Benzoate','Labdanum']],
+['Club de Nuit Intense','Armaf','EDP','Chypre',['Pineapple','Birch','Musk']],
+['Club de Nuit Milestone','Armaf','EDP','Woody',['Violet Leaf','Amber','Sandalwood']],
+['Incense Oud','Armaf','EDP','Oriental',['Oud','Incense','Amber']],
+['Azzaro Pour Homme','Azzaro','EDT','Fougère',['Anise','Sage','Lavender']],
+['Chrome','Azzaro','EDT','Aquatic',['Bergamot','Oakmoss','Cedar']],
+['Wanted','Azzaro','EDT','Woody',['Lemon','Juniper','Suede']],
+['Wanted by Night','Azzaro','EDP','Oriental',['Cardamom','Tobacco','Amber']],
+['Visit','Azzaro','EDT','Fougère',['Basil','Geranium','Vetiver']],
+['Stronger with You','Emporio Armani','EDT','Oriental',['Pink Pepper','Chestnut','Vanilla']],
+['Stronger with You EDP','Emporio Armani','EDP','Oriental',['Chestnut','Lavender','Vanilla']],
+['Stronger with You Intensely','Emporio Armani','EDP','Oriental',['Amber','Black Leather','Vanilla']],
+['Stronger with You Absolutely','Emporio Armani','Parfum','Oriental',['Tobacco','Caramel','Vanilla']],
+['Emporio He','Emporio Armani','EDT','Fresh',['Bergamot','Cardamom','Musk']],
+['Guilty Pour Homme EDT','Gucci','EDT','Oriental',['Pink Pepper','Geranium','Patchouli']],
+['Guilty Pour Homme EDP','Gucci','EDP','Oriental',['Lavender','Neroli','Amber']],
+['Guilty Absolute','Gucci','EDP','Leather',['Leather','Patchouli','Vetiver']],
+['The Alchemist Garden','Gucci','EDP','Oriental',['Ginger','Cardamom','Sandalwood']],
+['Pour Homme Gucci','Gucci','EDT','Chypre',['Tobacco','Woody Notes','Amber']],
+['Pour Homme II','Gucci','EDT','Chypre',['Bergamot','Geranium','Labdanum']],
+['Declaration','Cartier','EDT','Woody',['Cardamom','Cedar','Vetiver']],
+['Santos','Cartier','EDT','Woody',['Lavender','Sandalwood','Vetiver']],
+['Roadster','Cartier','EDT','Fresh',['Basil','Patchouli','Vetiver']],
+['Pasha de Cartier','Cartier','EDT','Fougère',['Mint','Bergamot','Oakmoss']],
+['Declaration d\'un Soir','Cartier','EDT','Oriental',['Cardamom','Vetiver','Amber']],
+['Shalimar','Guerlain','EDP','Oriental',['Bergamot','Iris','Vanilla']],
+['Habit Rouge','Guerlain','EDT','Oriental',['Bergamot','Rose','Vanilla']],
+['L\'Homme Idéal EDP','Guerlain','EDP','Gourmand',['Coffee','Almond','Iris']],
+['La Petite Robe Noire Homme','Guerlain','EDP','Aromatic',['Bergamot','Lavender','Cedar']],
+['Vetiver Guerlain','EDT','Guerlain','Woody',['Vetiver','Lemon','Tobacco']],
+['Jicky','Guerlain','EDT','Fougère',['Bergamot','Lavender','Civet']],
+['Molecule 01','Escentric Molecules','EDT','Woody',['Iso E Super']],
+['Molecule 02','Escentric Molecules','EDT','Woody',['Ambroxan']],
+['Molecule 03','Escentric Molecules','EDT','Woody',['Cashmeran']],
+['Molecule 04','Escentric Molecules','EDT','Woody',['Javanol']],
+['Escentric 01','Escentric Molecules','EDT','Woody',['Iso E Super','Lemon','Pepper']],
+['Escentric 02','Escentric Molecules','EDT','Woody',['Ambroxan','Grapefruit','Pepper']],
+['Escentric 05','Escentric Molecules','EDP','Woody',['Cashmeran','Orange Blossom','Musk']],
+['Reflection Man','Amouage','EDP','Floral',['Neroli','Ylang-ylang','Sandalwood']],
+['Interlude Man','Amouage','EDP','Oriental',['Incense','Oud','Amber']],
+['Jubilation XXV','Amouage','EDP','Oriental',['Labdanum','Myrrh','Oakmoss']],
+['Epic Man','Amouage','EDP','Oriental',['Oud','Sandalwood','Cardamom']],
+['Gold Man','Amouage','EDP','Oriental',['Frankincense','Rose','Sandalwood']],
+['Honour Man','Amouage','EDP','Woody',['Pepper','Cardamom','Labdanum']],
+['Lyric Man','Amouage','EDP','Floral',['Rose','Sandalwood','Musk']],
+['Boundless','Amouage','EDP','Woody',['Bergamot','Oud','Vetiver']],
+['Beach Hut Man','Amouage','EDT','Aquatic',['Marine','Bergamot','Cedar']],
+['Pegasus','Parfums de Marly','EDP','Fougère',['Lavender','Vanilla','Bergamot']],
+['Layton','Parfums de Marly','EDP','Gourmand',['Apple','Lavender','Sandalwood']],
+['Herod','Parfums de Marly','EDP','Gourmand',['Tobacco','Cinnamon','Vanilla']],
+['Habdan','Parfums de Marly','EDP','Oriental',['Saffron','Amber','Vanilla']],
+['Carlisle','Parfums de Marly','EDP','Woody',['Bergamot','Cardamom','Sandalwood']],
+['Sedley','Parfums de Marly','EDP','Fougère',['Bergamot','Iris','Vetiver']],
+['Percival','Parfums de Marly','EDP','Woody',['Oud','Sandalwood','Amber']],
+['Greenley','Parfums de Marly','EDT','Fresh',['Bergamot','Violet Leaf','Vetiver']],
+['Lippizan','Parfums de Marly','EDP','Woody',['Cardamom','Cedar','Sandalwood']],
+['Oud for Greatness','Initio','EDP','Oriental',['Oud','Saffron','Musk']],
+['Blessed Baraka','Initio','EDP','Oriental',['Oud','Amber','Incense']],
+['Absolute Aphrodisiac','Initio','EDP','Oriental',['Vanilla','Musk','Sandalwood']],
+['Rehab','Initio','EDP','Aromatic',['Musk','Coffee','Tonka']],
+['Psychedelic Love','Initio','EDP','Floral',['Rose','Amber','Sandalwood']],
+['Atomic Rose','Initio','EDP','Floral',['Rose','Patchouli','Musk']],
+['Bal d\'Afrique','Byredo','EDP','Floral',['Neroli','Violet','Musk']],
+['Gypsy Water','Byredo','EDP','Woody',['Bergamot','Juniper','Amber']],
+['Mojave Ghost','Byredo','EDP','Woody',['Ambrette','Magnolia','Sandalwood']],
+['Oud Immortel','Byredo','EDP','Oriental',['Oud','Incense','Leather']],
+['Seven Veils','Byredo','EDP','Oriental',['Oud','Benzyl Benzoate','Sandalwood']],
+['Sunday Cologne','Byredo','EDC','Fresh',['Bergamot','Violet Leaf','Musk']],
+['Bibliothèque','Byredo','EDP','Woody',['Peach','Vanilla','Birch']],
+['Blanche','Byredo','EDP','Floral',['Pink Pepper','Rose','Sandalwood']],
+['Philosykos','Diptyque','EDT','Woody',['Fig Leaf','Fig','White Cedar']],
+['Tam Dao','Diptyque','EDT','Woody',['Sandalwood','Myrrh','Cypress']],
+['Virgilio','Diptyque','EDT','Aromatic',['Basil','Vetiver','Fig Leaf']],
+['Eau Duelle','Diptyque','EDT','Spicy',['Vanilla','Incense','Pink Pepper']],
+['Eau Rose','Diptyque','EDT','Floral',['Rose','Lychee','Musk']],
+['Halfeti','Penhaligon\'s','EDP','Oriental',['Oud','Jasmine','Patchouli']],
+['Lothair','Penhaligon\'s','EDP','Floral',['Iris','Bourbon Rose','Violet']],
+['Endymion','Penhaligon\'s','EDP','Fougère',['Bergamot','Cardamom','Oakmoss']],
+['Douro','Penhaligon\'s','EDP','Woody',['Cork','Cedar','Sandalwood']],
+['Quercus','Penhaligon\'s','EDT','Woody',['Oak','Vetiver','Musk']],
+['No.1 Masculine','Clive Christian','Parfum','Floral',['Jasmine','Rose','Resin']],
+['X Men','Clive Christian','Parfum','Oriental',['Clove','Jasmine','Sandalwood']],
+['C Men','Clive Christian','Parfum','Aromatic',['Lime','Basil','Vetiver']],
+['Roja Dove Enigma','Roja Parfums','Parfum','Chypre',['Bergamot','Rose','Oakmoss']],
+['Elysium','Roja Parfums','Parfum','Fougère',['Grapefruit','Lavender','Cedarwood']],
+['Oceania','Roja Parfums','Parfum','Aquatic',['Marine','Grapefruit','Sandalwood']],
+['Isola Blu','Roja Parfums','EDP','Aquatic',['Sea Notes','Cypress','Sandalwood']],
+['Amber Aoud','Roja Parfums','EDP','Oriental',['Oud','Amber','Civet']],
+['Scandal Pour Homme','Roja Parfums','EDP','Fougère',['Bergamot','Lavender','Tonka']],
+['Parfum de la Nuit','Roja Parfums','Parfum','Oriental',['Oud','Amber','Musk']],
+['Dove','Roja Parfums','EDP','Floral',['Rose','Jasmine','Sandalwood']],
+['Acqua Colonia Grapefruit','Acqua di Parma','EDC','Fresh',['Grapefruit','Bergamot','Oakmoss']],
+['Colonia Original','Acqua di Parma','EDC','Fresh',['Lemon','Bergamot','Vetiver']],
+['Blu Mediterraneo','Acqua di Parma','EDT','Aquatic',['Sea Notes','Bergamot','Cedar']],
+['Colonia Essenza','Acqua di Parma','EDT','Fresh',['Bergamot','Clary Sage','Vetiver']],
+['Colonia Futura','Acqua di Parma','EDT','Aromatic',['Neroli','Rosemary','Musk']],
+['Colonia Club','Acqua di Parma','EDT','Fresh',['Citrus','Musk','Cedarwood']],
+['Colonia Assoluta','Acqua di Parma','EDT','Floral',['Rose','Jasmine','Musk']],
+['Black Aoud','Montale','EDP','Oriental',['Oud','Rose','Musk']],
+['Intense Cafe','Montale','EDP','Gourmand',['Coffee','Rose','Vanilla']],
+['Dark Purple','Montale','EDP','Floral',['Plum','Oud','Musk']],
+['Oud Tobacco','Montale','EDP','Oriental',['Tobacco','Oud','Amber']],
+['Aoud Leather','Montale','EDP','Leather',['Leather','Oud','Amber']],
+['Arabians','Montale','EDP','Oriental',['Oud','Rose','Amber']],
+['Full Incense','Montale','EDP','Oriental',['Incense','Amber','Musk']],
+['Aoud Forest','Montale','EDP','Woody',['Oud','Cedar','Sandalwood']],
+['White Aoud','Montale','EDP','Oriental',['Oud','Musk','Rose']],
+['Naxos','Xerjoff','EDP','Oriental',['Lavender','Tobacco','Vanilla']],
+['Nio','Xerjoff','EDP','Woody',['Oud','Amber','Musk']],
+['Casamorati 1888','Xerjoff','EDP','Oriental',['Vanilla','Patchouli','Sandalwood']],
+['Xj 1861 Naxos','Xerjoff','EDP','Oriental',['Honey','Tonka','Tobacco']],
+['Mefisto','Xerjoff','EDP','Spicy',['Pink Pepper','Oud','Vetiver']],
+['Kobe','Xerjoff','EDP','Chypre',['Bergamot','Leather','Oakmoss']],
+['Lira','Xerjoff','EDP','Floral',['Rose','Jasmine','Sandalwood']],
+['Richwood','Xerjoff','EDP','Woody',['Cedarwood','Amber','Musk']],
+['Tiziana Terenzi Kirke','Tiziana Terenzi','Parfum','Woody',['Sandalwood','Jasmine','Musk']],
+['Laudano Nero','Tiziana Terenzi','Parfum','Oriental',['Oud','Labdanum','Amber']],
+['Gumin','Tiziana Terenzi','EDP','Spicy',['Cumin','Saffron','Sandalwood']],
+['Nishane Ani','Nishane','Parfum','Floral',['Jasmine','Rose','Musk']],
+['Wulong Cha','Nishane','Parfum','Fresh',['Oolong Tea','Bergamot','Amber']],
+['Fan Your Flames','Nishane','Parfum','Woody',['Birch','Oud','Musk']],
+['Hacivat','Nishane','EDP','Woody',['Pineapple','Galbanum','Oakmoss']],
+['Zenne','Nishane','EDP','Floral',['Rose','Geranium','Sandalwood']],
+['Memo Irish Leather','Memo Paris','EDP','Chypre',['Leather','Galbanum','Cedar']],
+['Fleur de Cuir','Memo Paris','EDP','Leather',['Rose','Iris','Leather']],
+['Luxor Oud','Memo Paris','EDP','Oriental',['Oud','Amber','Rose']],
+['Ambre Sultan','Serge Lutens','EDP','Oriental',['Amber','Coriander','Oregano']],
+['Borneo 1834','Serge Lutens','EDP','Woody',['Patchouli','Chocolate','Camphor']],
+['Chergui','Serge Lutens','EDP','Oriental',['Tobacco','Honey','Musk']],
+['El Attarine','Serge Lutens','EDP','Oriental',['Cumin','Amber','Musk']],
+['Fille en Aiguilles','Serge Lutens','EDP','Woody',['Fir','Incense','Cedar']],
+['Feminite du Bois','Serge Lutens','EDP','Woody',['Cedar','Rose','Honey']],
+['Gris Clair','Serge Lutens','EDP','Aromatic',['Lavender','Iris','Musk']],
+['Iris Silver Mist','Serge Lutens','EDP','Aromatic',['Iris','Cedar','Musk']],
+['Sa Majesté la Rose','Serge Lutens','EDP','Floral',['Rose','Honey','Ciste Labdanum']],
+['L\'Air du Désert Marocain','Tauer','EDP','Oriental',['Thyme','Incense','Amber']],
+['Incense Rosé','Tauer','EDP','Oriental',['Rose','Incense','Labdanum']],
+['LDDM Intense','Tauer','EDP','Oriental',['Oud','Amber','Incense']],
+['Dunhill London','Dunhill','EDT','Woody',['Bergamot','Pepper','Cedar']],
+['Dunhill Desire','Dunhill','EDT','Woody',['Orange','Sandalwood','Oakmoss']],
+['Dunhill Icon','Dunhill','EDP','Woody',['Bergamot','Petitgrain','Vetiver']],
+['Dunhill Fresh','Dunhill','EDT','Fresh',['Bergamot','Grapefruit','Cedar']],
+['Dunhill Black','Dunhill','EDT','Woody',['Bergamot','Sandalwood','Musk']],
+['Lalique Encre Noire','Lalique','EDT','Woody',['Vetiver','Cashmere','Cypress']],
+['Lalique Pour Homme','Lalique','EDT','Woody',['Bergamot','Vetiver','Benzoin']],
+['Crystal','Lalique','EDT','Aromatic',['Bergamot','Cedar','Vanilla']],
+['Prada L\'Homme','Prada','EDT','Woody',['Iris','Amber','Vetiver']],
+['Prada Luna Rossa','Prada','EDT','Fougère',['Lavender','Ambrette','Silver Birch']],
+['Luna Rossa Carbon','Prada','EDT','Fougère',['Bergamot','Metallic Notes','Ambrette']],
+['Luna Rossa Ocean','Prada','EDP','Aquatic',['Sea Notes','Mastic','Iris']],
+['Prada L\'Homme Intense','Prada','EDP','Woody',['Iris','Orris Root','Amber']],
+['L\'Homme Prada EDP','Prada','EDP','Woody',['Iris','Cedar','Vetiver']],
+['Hugo Red','Hugo Boss','EDT','Woody',['Apple','Juniper','Cedar']],
+['Hugo Iced','Hugo Boss','EDT','Fresh',['Grapefruit','Verbena','Cedar']],
+['Comme des Garçons 2','Comme des Garçons','EDT','Fresh',['Aldehydes','Ink','Musk']],
+['Wonderwood','Comme des Garçons','EDT','Woody',['Cedarwood','Vetiver','Musk']],
+['Odeur 53','Comme des Garçons','EDT','Aromatic',['Metallic','Mineral','Musk']],
+['Play','Comme des Garçons','EDT','Fresh',['Apple','Sandalwood','Musk']],
+['Narciso Rodriguez For Him','Narciso Rodriguez','EDT','Woody',['Musk','Vetiver','Amber']],
+['Narciso Rodriguez Bleu Noir','Narciso Rodriguez','EDP','Woody',['Violet','Vetiver','Musk']],
+['Prada Infusion d\'Iris','Prada','EDP','Aromatic',['Iris','Cedar','White Musk']],
+['Moschino Fresh','Moschino','EDT','Fresh',['Bergamot','Musk','Muscat']],
+['Toy Boy','Moschino','EDP','Oriental',['Oud','Saffron','Amber']],
+['Polo Sport','Ralph Lauren','EDT','Fresh',['Mint','Sage','Vetiver']],
+['Polo Earth','Ralph Lauren','EDT','Woody',['Cardamom','Labdanum','Sandalwood']],
+['Bvlgari Man','Bvlgari','EDT','Fresh',['Marine','Bergamot','Vetiver']],
+['Bvlgari Man Wood Essence','Bvlgari','EDP','Woody',['Fig Wood','Cedar','Sandalwood']],
+['Aqva Pour Homme','Bvlgari','EDT','Aquatic',['Posidonia','Citrus','Musk']],
+['Aqva Amara','Bvlgari','EDT','Aquatic',['Bergamot','Bitter Orange','Amber']],
+['Man Black Cologne','Bvlgari','EDT','Fougère',['Rum','Iris','Vetiver']],
+['Man in Black','Bvlgari','EDP','Oriental',['Tobacco','Rum','Tuberose']],
+['Octo Absolu','Bvlgari','EDP','Woody',['Fig','Incense','Cedar']],
+['Splendida Rose','Bvlgari','EDP','Floral',['Rose','Patchouli','Musk']],
+['Nuit Noire','Bvlgari','EDP','Oriental',['Oud','Musk','Amber']],
+['Allure Homme Sport Extreme','Chanel','EDT','Woody',['Teak','Cedar','White Musk']],
+['Platinium Égoïste','Chanel','EDT','Woody',['Sage','Geranium','Sandalwood']],
+['Pour Monsieur Concentrée','Chanel','EDT','Chypre',['Neroli','Bergamot','Vetiver']],
+['Coco Mademoiselle Intense','Chanel','EDP','Oriental',['Patchouli','Rose','Vanilla']],
+['Fahrenheit Parfum','Dior','Parfum','Woody',['Hawthorn','Violet Leaf','Leather']],
+['Dune pour Homme','Dior','EDT','Woody',['Basil','Grapefruit','Vetiver']],
+['Eau Sauvage','Dior','EDT','Fougère',['Bergamot','Iris','Vetiver']],
+['Eau Sauvage Parfum','Dior','Parfum','Woody',['Vetiver','Incense','Citruses']],
+['Fahrenheit Absolute','Dior','EDP','Woody',['Violet','Leather','Amber']],
+['Dior Homme Sport','Dior','EDT','Fresh',['Bergamot','Star Anise','Vetiver']],
+['Gris Dior','Dior','EDP','Aromatic',['Angelica','Amber','Oakmoss']],
+['New York Intense','Memo Paris','EDP','Spicy',['Pepper','Vetiver','Amber']],
+['Versace Pour Homme Ice','Versace','EDT','Aquatic',['Citrus','Sea Notes','Cedar']],
+['Signature Homme','S.T. Dupont','EDT','Aromatic',['Lavender','Cedar','Sandalwood']],
+['Passenger','S.T. Dupont','EDT','Woody',['Bergamot','Cedar','Vetiver']],
+['Dunhill Edition','Dunhill','EDT','Fougère',['Lavender','Geranium','Oakmoss']],
+['M by Marbert','Marbert','EDT','Fougère',['Bergamot','Lavender','Vetiver']],
+['Club de Nuit EDT','Armaf','EDT','Chypre',['Pineapple','Birch','Oakmoss']],
+['Club de Nuit Parfum','Armaf','Parfum','Chypre',['Birch','Amber','Sandalwood']],
+['Derby Club House Blanche','Armaf','EDP','Fougère',['Lavender','Bergamot','Vetiver']],
+['Declaration Essence','Cartier','EDT','Woody',['Basil','Petitgrain','Vetiver']],
+['L\'Heure Défendue','Cartier','EDP','Oriental',['Incense','Amber','Vanilla']],
+['Basculer dans l\'Éternité','Cartier','EDP','Aromatic',['Lavender','Cedar','Vetiver']],
+['Aqua Allegoria Bergamote','Guerlain','EDT','Fresh',['Bergamot','Lemon','White Musk']],
+['Heritage','Guerlain','EDT','Chypre',['Bergamot','Thyme','Oakmoss']],
+['L\'Instant Magic','Guerlain','EDP','Woody',['Bergamot','Iris','Sandalwood']],
+['Vetiver Tonka','Hermès','EDT','Woody',['Vetiver','Tonka Bean','Cardamom']],
+['Eau des Merveilles Bleue','Hermès','EDT','Aquatic',['Sea Salt','Amberwood','Cedar']],
+['Séville à l\'Aube','L\'Artisan Parfumeur','EDP','Oriental',['Orange Blossom','Incense','Beeswax']],
+['Mûre et Musc','L\'Artisan Parfumeur','EDT','Fresh',['Blackberry','Musk','White Musks']],
+['Ambre Nuit','Dior','EDP','Oriental',['Amber','Rose','Labdanum']],
+['Jubileum 1997','Creed','EDP','Woody',['Bergamot','Vetiver','Musk']],
+['Fleurs de Bulgarie','Creed','EDP','Floral',['Rose','Musk','Bergamot']],
+['White Flowers','Creed','EDP','Floral',['Tuberose','Jasmine','Sandalwood']],
+['Erolfa','Creed','EDT','Aquatic',['Bergamot','Melon','Sandalwood']],
+['Mandarino di Amalfi','Tom Ford','EDP','Fresh',['Mandarin','Bergamot','Sandalwood']],
+['Neroli Portofino Forte','Tom Ford','EDP','Fresh',['Neroli','Bergamot','Citrus']],
+['Santal Blush','Tom Ford','EDP','Woody',['Sandalwood','Cardamom','Cinnamon']],
+['Rose d\'Amalfi','Tom Ford','EDP','Floral',['Rose','Pepper','Sandalwood']],
+['Plum Japonais','Tom Ford','EDP','Oriental',['Plum','Myrrh','Amber']],
+['Azure Lime','Tom Ford','EDP','Fresh',['Lime','Marine','Vetiver']],
+['Amber Absolute','Tom Ford','Parfum','Oriental',['Amber','Labdanum','Sandalwood']],
+['Café Rose','Tom Ford','EDP','Floral',['Rose','Coffee','Patchouli']],
+['Sole di Positano Acqua','Tom Ford','EDT','Fresh',['Lemon','Basil','Aquatic Notes']],
+['Narciso For Him EDT','Narciso Rodriguez','EDT','Woody',['Musk','Cardamom','Vetiver']],
+['Narciso For Him EDP','Narciso Rodriguez','EDP','Woody',['Vetiver','Musk','Amber']],
+['L\'Homme Intense Yatagan','Caron','EDT','Fougère',['Artemisia','Vetiver','Oakmoss']],
+['Yatagan','Caron','EDT','Aromatic',['Artemisia','Labdanum','Cedarwood']],
+['Pour un Homme','Caron','EDT','Fougère',['Lavender','Vanilla','Musk']],
+['Pour un Homme de Nuit','Caron','EDP','Oriental',['Lavender','Honey','Sandalwood']],
+['Fahrenheit EDT New','Dior','EDT','Woody',['Juniper','Lavender','Cedar']],
+['Oud Elite','Lattafa','EDP','Oriental',['Oud','Amber','Rose']],
+['Raghba','Lattafa','EDP','Oriental',['Vanilla','Amber','Musk']],
+['Oud Mood','Lattafa','EDP','Oriental',['Oud','Saffron','Amber']],
+['Badee Al Oud','Lattafa','EDP','Oriental',['Oud','Rose','Sandalwood']],
+['Pride','Lattafa','EDP','Oriental',['Oud','Amber','Musk']],
+['Asad','Lattafa','EDP','Spicy',['Saffron','Oud','Amber']],
+['Al Haramain L\'Aventure','Al Haramain','EDP','Oriental',['Bergamot','Incense','Amber']],
+['Amber Oud Gold','Al Haramain','EDP','Oriental',['Amber','Oud','Rose']],
+['Midnight Oud','Al Haramain','EDP','Oriental',['Oud','Saffron','Musk']],
+['La Yuqawam','Al Haramain','EDP','Fougère',['Lavender','Oud','Amber']],
+['Makkah','Al Haramain','EDP','Oriental',['Oud','Amber','Musk']],
+['Maahir','Lattafa','EDP','Spicy',['Saffron','Amber','Oud']],
+['Nabeel Pour Homme','Nabeel','EDP','Oriental',['Oud','Rose','Amber']],
+['Thaqafat','Nabeel','EDP','Oriental',['Frankincense','Oud','Musk']],
+['Khaltat Night','Inspired','EDP','Oriental',['Oud','Rose','Sandalwood']],
+['Oud Mubakhar','Swiss Arabian','EDP','Oriental',['Oud','Rose','Saffron']],
+['Shaghaf Oud','Swiss Arabian','EDP','Oriental',['Oud','Amber','Musk']],
+['Jannat ul Firdaus','Swiss Arabian','EDP','Floral',['Rose','Jasmine','Musk']],
+['Oudy Night','Swiss Arabian','EDP','Oriental',['Oud','Sandalwood','Amber']],
+['Dehn El Oud Malaki','Swiss Arabian','EDP','Oriental',['Pure Oud','Amber','Musk']],
+['Wazarat','Swiss Arabian','EDP','Spicy',['Saffron','Cardamom','Oud']],
+['Royal Muska','Rasasi','EDP','Woody',['Sandalwood','Musk','Amber']],
+['Daarej','Rasasi','EDP','Oriental',['Oud','Saffron','Rose']],
+['Nebras','Rasasi','EDP','Oriental',['Oud','Amber','Musk']],
+['Blue Lady','Rasasi','EDT','Fresh',['Bergamot','Aquatic','Musk']],
+['La Yuqawam Rasasi','Rasasi','EDP','Fougère',['Lavender','Oud','Sandalwood']],
+['Dhanal Oud Cambodi','Rasasi','EDP','Oriental',['Cambodian Oud','Saffron','Amber']],
+['Haramain Amber Oud Classic','Al Haramain','EDP','Oriental',['Amber','Oud','Benzoin']],
+['Burj Al Arab Homme','AFNAN','EDP','Woody',['Sandalwood','Oud','Musk']],
+['Supremacy Silver','AFNAN','EDP','Fresh',['Bergamot','Lavender','Musk']],
+['Supremacy in Oud','AFNAN','EDP','Oriental',['Oud','Incense','Amber']],
+['9 PM','AFNAN','EDP','Oriental',['Cardamom','Leather','Amber']],
+['Souvenir','AFNAN','EDP','Woody',['Cedar','Musk','Vetiver']],
+['Dolce & Gabbana Pour Homme Intenso','Dolce & Gabbana','EDP','Woody',['Pepper','Incense','Patchouli']],
+['The One Platinum','Dolce & Gabbana','EDP','Oriental',['Cardamom','Tobacco','Amber']],
+['Leau The One','Dolce & Gabbana','EDT','Fresh',['Bergamot','Cardamom','Cedarwood']],
+['Intenso EDP','Dolce & Gabbana','EDP','Woody',['Geranium','Coriander','Vetiver']],
+['Fendi Fan di Fendi Pour Homme','Fendi','EDT','Woody',['Bergamot','Juniper','Sandalwood']],
+['Fan di Fendi Extreme','Fendi','EDT','Oriental',['Tobacco','Juniper','Amber']],
+['L\'Uomo','Salvatore Ferragamo','EDT','Woody',['Patchouli','Musk','Vetiver']],
+['Ferragamo Intense Leather','Salvatore Ferragamo','EDP','Leather',['Leather','Oud','Sandalwood']],
+['F by Ferragamo','Salvatore Ferragamo','EDT','Fougère',['Bergamot','Iris','Musk']],
+['Salvatore Pour Homme','Salvatore Ferragamo','EDP','Woody',['Bergamot','Geranium','Cedarwood']],
+['Ricci Club','Nina Ricci','EDT','Fougère',['Grapefruit','Juniper','Vetiver']],
+['L\'Air du Temps Homme','Nina Ricci','EDT','Fougère',['Bergamot','Spices','Sandalwood']],
+['Cerruti 1881','Cerruti','EDT','Fougère',['Lavender','Iris','Oakmoss']],
+['Cerruti Image','Cerruti','EDT','Fougère',['Neroli','Vetiver','Cedarwood']],
+['Profumo Pour Homme','Cerruti','EDT','Aromatic',['Bergamot','Sage','Vetiver']],
+['Code Sport','Giorgio Armani','EDT','Fresh',['Citrus','Wood','Amber']],
+['Armani Privé La Femme Bleue','Giorgio Armani','EDP','Floral',['Iris','Rose','Sandalwood']],
+['Giò','Giorgio Armani','EDT','Aquatic',['Sea Notes','Bergamot','Sandalwood']],
+['Acqua di Giò Essenza','Giorgio Armani','EDP','Aquatic',['Labdanum','Mineral','Rosemary']],
+['Cuir Cannage','Dior','EDP','Leather',['Leather','Saffron','Oud']],
+['Féve Délicieuse','Dior','EDP','Gourmand',['Tonka Bean','Vanilla','Cedar']],
+['Gris Montaigne','Dior','EDP','Chypre',['Rose','Iris','Cedar']],
+['Leather Oud Dior','Dior','EDP','Leather',['Leather','Oud','Rose']],
+['Eau Noire EDT','Dior','EDT','Aromatic',['Lavender','Black Tea','Musk']],
+['Fahrenheit 32','Dior','EDT','Fresh',['Bergamot','Violet','Sandalwood']],
+['Versace Crystal Black','Versace','EDT','Fougère',['Iris','Violet','Amber']],
+['Versus Versace','Versace','EDT','Woody',['Pepper','Amber','Cedar']],
+['Versace Man Eau Fraiche','Versace','EDT','Fresh',['Calabrian Bergamot','Carambola','Rosewood']],
+['Joop Homme','Joop','EDT','Oriental',['Orange Blossom','Heliotrope','Vanilla']],
+['Joop Wild','Joop','EDT','Woody',['Citrus','Basil','Sandalwood']],
+['Joop Go','Joop','EDT','Fresh',['Grapefruit','Cardamom','Cedar']],
+['Davidoff Good Life','Davidoff','EDT','Fresh',['Lime','Freesia','Cedar']],
+['Hot Water','Davidoff','EDT','Aquatic',['White Pepper','Aquatic','Musk']],
+['The Game','Davidoff','EDT','Fresh',['Ginger','Cardamom','Cedarwood']],
+['Lolita Lempicka Homme','Lolita Lempicka','EDT','Oriental',['Liquorice','Coffee','Amber']],
+['Masque','MDCI Parfums','EDP','Chypre',['Bergamot','Rose','Oakmoss']],
+['Idéale','MDCI Parfums','EDP','Floral',['Tuberose','Iris','Sandalwood']],
+['Un Coeur en Mai','MDCI Parfums','EDP','Floral',['Rose','Lily','Vetiver']],
+['Chanel Egoiste Platinum','Chanel','EDT','Woody',['Sage','Sandalwood','Vetiver']],
+['Allure Homme Édition Blanche','Chanel','EDP','Fresh',['Lemon','Vetiver','Cedar']],
+['Sublimage L\'Extrait','Chanel','EDP','Floral',['Iris','Tuberose','Sandalwood']],
+['Knize Ten','Knize','EDT','Leather',['Bergamot','Jasmine','Leather']],
+['Krigler American in Paris','Krigler','EDP','Chypre',['Citrus','Oakmoss','Amber']],
+['Creed Love in Black','Creed','EDP','Floral',['Violet','Rose','Sandalwood']],
+['Spice & Wood','Creed','EDP','Spicy',['Cardamom','Cinnamon','Sandalwood']],
+['Pure White Cologne','Creed','EDT','Fresh',['Bergamot','Lemon','Musk']],
+['Virgin Island Water','Creed','EDT','Fresh',['Coconut','Lime','Musk']],
+['Aventus Cologne','Creed','EDC','Fresh',['Pineapple','Bergamot','Musk']],
+['Okiha','Slumberhouse','EDP','Oriental',['Oud','Amber','Vetiver']],
+['Norne','Slumberhouse','EDP','Woody',['Pine','Birch','Fir Balsam']],
+['Pear + Olive','Slumberhouse','EDP','Fresh',['Pear','Olive','Sandalwood']],
+['Zahd','Slumberhouse','EDP','Spicy',['Cardamom','Tobacco','Amber']],
+['Opus Kore','Xerjoff','EDP','Floral',['Iris','Rose','Sandalwood']],
+['Alexandria II','Xerjoff','EDP','Oriental',['Lemon','Saffron','Oud']],
+['Sospiro Erba Pura','Sospiro','EDP','Fresh',['Bergamot','Musk','Amber']],
+['Sospiro Rosso Premio','Sospiro','EDP','Spicy',['Pepper','Rose','Amber']],
+['Sospiro Accento','Sospiro','EDP','Floral',['Iris','Rose','Sandalwood']],
+['Bagnara','Sospiro','EDP','Oriental',['Bergamot','Cardamom','Oud']],
+['Stéphane Humbert Lucas Soleil de Jeddah','SHL 777','EDP','Oriental',['Saffron','Oud','Amber']],
+['Khôl de Bahrein','SHL 777','EDP','Oriental',['Saffron','Oud','Amber']],
+['Mortal Skin','SHL 777','EDP','Leather',['Leather','Sandalwood','Musk']],
+['O Hira','SHL 777','EDP','Woody',['Oud','Sandalwood','Iris']],
+['Tuxedo','The Different Company','EDP','Woody',['Sandalwood','Amber','Cedar']],
+['Oud Shamash','The Different Company','EDP','Oriental',['Oud','Rose','Amber']],
+['Santo Incienso','The Different Company','EDP','Woody',['Incense','Sandalwood','Musk']],
+['Jubilation Man','Amouage','EDP','Oriental',['Frankincense','Myrrh','Labdanum']],
+['Fate Man','Amouage','EDP','Oriental',['Bergamot','Labdanum','Olibanum']],
+['Ciel Man','Amouage','EDP','Floral',['Bergamot','Neroli','Sandalwood']],
+['Dia Man','Amouage','EDT','Floral',['Bergamot','Cardamom','Sandalwood']],
+['Library Collection Opus VI','Amouage','EDP','Oriental',['Incense','Amber','Sandalwood']],
+['Library Collection Opus VII','Amouage','EDP','Woody',['Oud','Vetiver','Cedar']],
+['Myths Man','Amouage','EDP','Woody',['Bergamot','Oud','Sandalwood']],
+['Renaissance','Amouage','EDP','Woody',['Sandalwood','Vetiver','Musk']],
+['Silver Man','Amouage','EDP','Fougère',['Bergamot','Oakmoss','Sandalwood']],
+['Encre Noire Sport','Lalique','EDT','Woody',['Vetiver','Fir','Musk']],
+['Lalique Hommage','Lalique','EDP','Aromatic',['Bergamot','Iris','Sandalwood']],
+['L\'Insoumis','Lalique','EDT','Fougère',['Bergamot','Lavender','Vetiver']],
+['Decadence Pour Homme','Marc Jacobs','EDT','Woody',['Saffron','Pepper','Suede']],
+['Bang','Marc Jacobs','EDT','Woody',['Pink Pepper','Citrus','Cedar']],
+['Wood Men','Dsquared2','EDT','Woody',['Citrus','Musk','Cedarwood']],
+['He Wood','Dsquared2','EDT','Woody',['Sandalwood','Coconut','Cedar']],
+['He Wood Rocky Mountain','Dsquared2','EDT','Woody',['Juniper','Cedarwood','Musk']],
+['Intense He Wood','Dsquared2','EDP','Woody',['Sandalwood','Cedar','Musk']],
+['Wild He Wood','Dsquared2','EDT','Fresh',['Grapefruit','Cypress','Moss']],
+['Pi','Givenchy','EDT','Gourmand',['Tonka Bean','Vanilla','Amber']],
+['Pi Neo','Givenchy','EDT','Gourmand',['Mango','Tonka','Amber']],
+['Gentleman','Givenchy','EDT','Fougère',['Patchouli','Iris','Leather']],
+['Gentleman Society','Givenchy','EDP','Woody',['Bergamot','Cardamom','Vetiver']],
+['Only the Brave','Diesel','EDT','Woody',['Bergamot','Violet','Leather']],
+['Only the Brave Extreme','Diesel','EDT','Fougère',['Grapefruit','Violet','Musk']],
+['Spirit of the Brave','Diesel','EDT','Woody',['Tequila','Mastic','Vetiver']],
+['Fuel for Life','Diesel','EDT','Woody',['Bergamot','Star Anise','Amber']],
+['Bad','Diesel','EDT','Oriental',['Leather','Tonka Bean','Amber']],
+['Hugo Deep Red','Hugo Boss','EDT','Fresh',['Pineapple','Peach','Sandalwood']],
+['Boss Alive','Hugo Boss','EDP','Fougère',['Lavender','Vetiver','Oak']],
+['Boss Man','Hugo Boss','EDT','Oriental',['Mint','Cinnamon','Sandalwood']],
+['Boss Selection','Hugo Boss','EDT','Woody',['Cardamom','Sage','Sandalwood']],
+['Pure Havane','Thierry Mugler','EDT','Oriental',['Tobacco','Vetiver','Honey']],
+['Cologne','Thierry Mugler','EDT','Fougère',['Bergamot','Lavender','Oakmoss']],
+['Womanity','Thierry Mugler','EDP','Aquatic',['Aquatic','Fig','Caviar']],
+['AMen Pure Havane','Thierry Mugler','EDT','Oriental',['Tobacco','Caramel','Vetiver']],
+['Sécrétions Magnifiques','Etat Libre d\'Orange','EDP','Aquatic',['Adrenaline','Iodo Accords','Musk']],
+['Remarkable People','Etat Libre d\'Orange','EDP','Woody',['Cardamom','Mastic','Vetiver']],
+['Tom of Finland','Etat Libre d\'Orange','EDP','Leather',['Birch','Leather','Vetiver']],
+['La Fin du Monde','Etat Libre d\'Orange','EDP','Oriental',['Mushrooms','Ambergris','Musk']],
+['Sécrétions Magnifiques Extrait','Etat Libre d\'Orange','Parfum','Aquatic',['Blood','Milk','Metal']],
+['Ambre Nuit Parfum','Dior','Parfum','Oriental',['Amber','Rose','Labdanum']],
+['Sauvage Elixir','Dior','Parfum','Spicy',['Cinnamon','Cardamom','Hawthorn']],
+['Dior Homme 2020','Dior','EDP','Aromatic',['Iris','Lavender','Vetiver']],
+['Dior Homme Parfum 2014','Dior','Parfum','Aromatic',['Iris','Leather','Vetiver']],
+['Privé Amber Oud','Al Haramain','EDP','Oriental',['Oud','Amber','Vanilla']],
+['Blue Ray','Rasasi','EDP','Aquatic',['Sea Notes','Bergamot','Musk']],
+['Faris','Rasasi','EDP','Oriental',['Oud','Saffron','Amber']],
+['Hawas Men','Rasasi','EDP','Aquatic',['Marine','Bergamot','Amber']],
+['Junoon Satin','Rasasi','EDP','Floral',['Rose','Oud','Sandalwood']],
+['Royale Amber','Rasasi','EDP','Oriental',['Amber','Honey','Musk']],
+['La Yuqawam Homme','Rasasi','EDP','Fougère',['Lavender','Bergamot','Oud']],
+['Perle de Mousse','Goutal','EDT','Fresh',['Oakmoss','Iris','Musk']],
+['Nuit Etoilée','Goutal','EDT','Woody',['Grapefruit','Cedar','Musk']],
+['Grand Amour','Goutal','EDP','Floral',['Rose','Jasmine','Amber']],
+['Neroli Extrême','Goutal','EDP','Fresh',['Neroli','Bergamot','Musk']],
+['Bois Mémorable','Goutal','EDP','Woody',['Birch','Cedar','Amber']],
+['Tea for Two','L\'Artisan Parfumeur','EDT','Spicy',['Tea','Cinnamon','Smoke']],
+['Passage d\'Enfer','L\'Artisan Parfumeur','EDT','Woody',['Incense','Lily','Cedar']],
+['Dzing!','L\'Artisan Parfumeur','EDT','Gourmand',['Vanilla','Caramel','Leather']],
+['Safran Troublant','L\'Artisan Parfumeur','EDT','Oriental',['Saffron','Rose','Vanilla']],
+['La Chasse aux Papillons','L\'Artisan Parfumeur','EDT','Floral',['White Flowers','Lime','Musk']],
+['Timbuktu','L\'Artisan Parfumeur','EDT','Woody',['Mango','Vetiver','Incense']],
+['Premier Figuier','L\'Artisan Parfumeur','EDT','Fresh',['Fig','Sandalwood','Musk']],
+['Bois Farine','L\'Artisan Parfumeur','EDT','Woody',['Flour','Cedar','Benzoin']],
+['Black Pepper','Commodity','EDP','Spicy',['Black Pepper','Amber','Musk']],
+['Vetiver Commodity','Commodity','EDP','Woody',['Vetiver','Patchouli','Amber']],
+['Tonka Commodity','Commodity','EDP','Gourmand',['Tonka','Vanilla','Musk']],
+['Gold Commodity','Commodity','EDP','Woody',['Sandalwood','Cedar','Musk']],
+['Book','Commodity','EDP','Woody',['Paper','Vetiver','Musk']],
+['Teak','Commodity','EDP','Woody',['Teak Wood','Smoke','Leather']],
+['Juniper','Commodity','EDP','Fresh',['Juniper','Bergamot','Musk']],
+['Hinoki','Commodity','EDP','Woody',['Hinoki','Vetiver','Sandalwood']],
+['Oud 01 Black','Maison Martin Margiela','EDP','Oriental',['Oud','Vanilla','Incense']],
+['Replica Jazz Club','Maison Margiela','EDT','Gourmand',['Rum','Tobacco','Vanilla']],
+['Replica By the Fireplace','Maison Margiela','EDT','Woody',['Chestnut','Cashmeran','Vanilla']],
+['Replica Beach Walk','Maison Margiela','EDT','Aquatic',['Bergamot','Coconut','Vanilla']],
+['Replica Sailing Day','Maison Margiela','EDT','Aquatic',['Marine','Bergamot','Cedar']],
+['Replica Under the Lemon Trees','Maison Margiela','EDT','Fresh',['Lemon','Blackcurrant','Cedar']],
+['Replica Coffee Break','Maison Margiela','EDT','Gourmand',['Coffee','Iris','Musk']],
+['Replica Autumn Vibes','Maison Margiela','EDT','Oriental',['Cinnamon','Patchouli','Amber']],
+['Replica Flower Market','Maison Margiela','EDT','Floral',['Rose','Lily','Musk']],
+['Vintage Leather','Maison Margiela','EDP','Leather',['Leather','Wood','Tobacco']],
+['Untitled','Maison Margiela','EDT','Fresh',['Lemon','Aldehydes','Musk']],
+['Musc Ravageur','Frederic Malle','EDP','Oriental',['Musk','Vanilla','Amber']],
+['Portrait of a Lady','Frederic Malle','EDP','Floral',['Rose','Patchouli','Sandalwood']],
+['Dries van Noten','Frederic Malle','EDP','Woody',['Sandalwood','Vetiver','Rose']],
+['French Lover','Frederic Malle','EDP','Woody',['Birch','Vetiver','Oak']],
+['Geranium pour Monsieur','Frederic Malle','EDT','Fresh',['Geranium','Clove','Musk']],
+['En Passant','Frederic Malle','EDT','Floral',['Lilac','Cucumber','Musk']],
+['Carnal Flower','Frederic Malle','EDP','Floral',['Tuberose','Melon','Coconut']],
+['Iris Poudre','Frederic Malle','EDP','Floral',['Iris','Violet','Rose']],
+['Cologne Indelebile','Frederic Malle','EDP','Fresh',['Neroli','Musk','Sandalwood']],
+['Synthetic Jungle','Frederic Malle','EDP','Aromatic',['Bamboo','Musk','Vetiver']],
+['Oud Minerale Xerjoff','Xerjoff','Parfum','Oriental',['Oud','Marine','Amber']],
+['K By Kilian Good Girl Gone Bad','Kilian','EDP','Floral',['Neroli','Rose','Musk']],
+['Voulez Vous Coucher Avec Moi','Kilian','EDP','Oriental',['Rose','Oud','Amber']],
+['Moonlight in Heaven','Kilian','EDP','Aquatic',['Grapefruit','Coconut','Musk']],
+['Playing with the Devil','Kilian','EDP','Gourmand',['Peach','Caramel','Tonka']],
+['Liaisons Dangereuses','Kilian','EDP','Floral',['Rose','Lily of Valley','Musk']],
+['Dark Lord','Kilian','EDP','Oriental',['Bourbon Rum','Tobacco','Myrrh']],
+['Black Phantom Kilian','Kilian','EDP','Gourmand',['Black Coffee','Rum','Sandalwood']],
+['Musk Oud','Kilian','EDP','Oriental',['Oud','Musk','Rose']],
+['Eau Moheli','Dior','EDT','Fresh',['Coconut','Ylang-ylang','Sandalwood']],
+['Oud Rosewood','Dior','EDP','Oriental',['Oud','Rose','Sandalwood']],
+['Ambre Nuit Dior','Dior','EDP','Oriental',['Rose','Amber','Sandalwood']],
+['New Look 1947','Dior','EDP','Floral',['Rose','Iris','Musk']],
+['Hypnotic Poison','Dior','EDP','Oriental',['Almond','Vanilla','Heliotrope']],
+['Poison','Dior','EDP','Oriental',['Plum','Tuberose','Amber']],
+['Jules New','Dior','EDT','Chypre',['Clary Sage','Geranium','Vetiver']],
+['Fahrenheit Le Parfum','Dior','Parfum','Woody',['Cedar','Leather','Amber']],
+['Beau de Jour Refillable','Tom Ford','EDP','Fougère',['Lavender','Thyme','Oakmoss']],
+['Bitter Peach','Tom Ford','EDP','Oriental',['Peach','Cardamom','Tonka']],
+['Oud Rose','Tom Ford','EDP','Oriental',['Rose','Oud','Amber']],
+['Vanille Fatale','Tom Ford','EDP','Oriental',['Vanilla','Tonka','Incense']],
+['Fougère d\'Argent','Tom Ford','EDP','Fougère',['Lavender','Oakmoss','Sandalwood']],
+['Purple Noon','Tom Ford','EDP','Woody',['Lemon','Vetiver','Ambroxan']],
+['Metallique','Tom Ford','EDP','Woody',['Metallic Notes','Iris','Amber']],
+['Rose Prick','Tom Ford','EDP','Floral',['Turkish Rose','Oud','Amber']],
+['Soir de Lune','Tom Ford','EDP','Oriental',['Ylang-ylang','Rose','Amber']],
+['Orchid Soleil','Tom Ford','EDP','Floral',['Orchid','Jasmine','Amber']],
+['Oud Palao','Tom Ford','EDP','Oriental',['Patchouli','Oud','Rose']],
+['Crème de la Mer','La Mer','EDP','Aquatic',['Sea Notes','Musk','Amber']],
+['Mercedes-Benz Club','Mercedes-Benz','EDT','Fougère',['Lavender','Pineapple','Cedar']],
+['Mercedes-Benz Le Parfum','Mercedes-Benz','EDP','Woody',['Bergamot','Amber','Vetiver']],
+['Mercedes-Benz Man','Mercedes-Benz','EDT','Woody',['Grapefruit','Cardamom','Vetiver']],
+['Mercedes-Benz Man Intense','Mercedes-Benz','EDT','Aromatic',['Bergamot','Cardamom','Amber']],
+['Porsche Design Man','Porsche Design','EDT','Fresh',['Bergamot','Ginger','Cedar']],
+['Porsche Design Sport Frozen','Porsche Design','EDT','Fresh',['Grapefruit','Lime','Amber']],
+['Porsche Design Black','Porsche Design','EDP','Woody',['Bergamot','Oud','Sandalwood']],
+['Lamborghini Men','Lamborghini','EDT','Aromatic',['Grapefruit','Cardamom','Vetiver']],
+['Bentley for Men','Bentley','EDP','Woody',['Cardamom','Sandalwood','Vetiver']],
+['Bentley Infinite','Bentley','EDT','Fougère',['Bergamot','Lavender','Vetiver']],
+['Maserati Granturismo','Maserati','EDT','Aromatic',['Bergamot','Patchouli','Amber']],
+['Comme Des Garçons Amazingreen','Comme des Garçons','EDT','Fresh',['Green','Bergamot','Cedar']],
+['Cologne Blanche','Dior','EDC','Fresh',['Bergamot','Musk','Sandalwood']],
+['Eau Sauvage Extreme','Dior','EDT','Fougère',['Iris','Vetiver','Cedar']],
+['Higher','Dior','EDT','Woody',['Bergamot','Lemon','Cedar']],
+['Higher Energy','Dior','EDT','Fresh',['Citruses','Pepper','Cedar']],
+['Fahrenheit Frozen','Dior','EDT','Fresh',['Mandarin','Violet','Vetiver']],
+['Private Blend Orchid Soleil','Tom Ford','EDP','Floral',['Orchid','Vetiver','Amber']],
+['Amber Oud Exclusive','Al Haramain','EDP','Oriental',['Amber','Oud','Saffron']],
+['Rashan','Rasasi','EDP','Oriental',['Rose','Oud','Sandalwood']],
+['Royale Amber Men Rasasi','Rasasi','EDP','Oriental',['Amber','Oud','Musk']],
+['La Gauloise','Creed','EDP','Fougère',['Lavender','Cedar','Oakmoss']],
+['Aubépine Acacia','Creed','EDP','Floral',['Mimosa','Hyacinth','Sandalwood']],
+['Love in White','Creed','EDP','Floral',['Iris','Rice','Sandalwood']],
+['Datura Noir','Serge Lutens','EDP','Oriental',['Tuberose','Coconut','Almond']],
+['Vetiver Oriental','Serge Lutens','EDP','Woody',['Vetiver','Amber','Sandalwood']],
+['Tubéreuse Criminelle','Serge Lutens','EDP','Floral',['Tuberose','Camphor','Musk']],
+['Cèdre','Serge Lutens','EDP','Woody',['Cedar','Mastic','Rose']],
+['La Myrrhe','Serge Lutens','EDP','Oriental',['Myrrh','Amber','Sandalwood']],
+['Nuit de Cellophane','Serge Lutens','EDP','Floral',['Jasmine','Rose','Musk']],
+['De Profundis','Serge Lutens','EDP','Floral',['Chrysanthemum','Earth','Violet']],
+['Arabie','Serge Lutens','EDP','Oriental',['Date','Cinnamon','Oud']],
+['Cuir Mauresque','Serge Lutens','EDP','Leather',['Leather','Amber','Incense']],
+['Fleurs d\'Oranger','Serge Lutens','EDP','Floral',['Orange Blossom','Jasmine','Musk']],
+['Une Voix Noire','Serge Lutens','EDP','Woody',['Sandalwood','Coffee','Vanilla']],
+['Rose de Nuit','Serge Lutens','EDP','Floral',['Rose','Patchouli','Vetiver']],
+['A La Nuit','Serge Lutens','EDP','Floral',['Jasmine','Musk','Amber']],
+['Muscs Koublai Khän','Serge Lutens','EDP','Oriental',['Musk','Labdanum','Clove']],
+['Iris Silver Mist Extreme','Serge Lutens','Parfum','Aromatic',['Iris','Carrot','Musk']],
+['Le Labo Ylang 49','Le Labo','EDP','Floral',['Ylang-ylang','Musk','Sandalwood']],
+['Le Labo Gaiac 10','Le Labo','EDP','Woody',['Gaiac Wood','Amber','Vetiver']],
+['Le Labo Baie 19','Le Labo','EDP','Aromatic',['Juniper','Pepper','Iris']],
+['Le Labo Labdanum 18','Le Labo','EDP','Oriental',['Labdanum','Musk','Amber']],
+['Le Labo Musc 25','Le Labo','EDP','Woody',['Musk','Gaiac Wood','Sandalwood']],
+['Le Labo Géranium 30','Le Labo','EDP','Fresh',['Geranium','Musk','Bergamot']],
+['Le Labo Myrrhe 55','Le Labo','EDP','Oriental',['Myrrh','Incense','Amber']],
+['Le Labo Iris 39','Le Labo','EDP','Floral',['Iris','Rose','Musk']],
+['Oud Absolu','Hermès','EDP','Oriental',['Oud','Sandalwood','Amber']],
+['Eau de Rhubarbe Écarlate','Hermès','EDC','Fresh',['Rhubarb','Musk','White Cedar']],
+['Hermessence Poivre Samarcande','Hermès','EDP','Spicy',['Pepper','Vetiver','Wood']],
+['Hermessence Ambre Narguilé','Hermès','EDP','Oriental',['Amber','Apple','Vanilla']],
+['Hermessence Osmanthe Yunnan','Hermès','EDP','Floral',['Osmanthus','Tea','Amber']],
+['Épice Marine','Hermès','EDT','Aquatic',['Sea Salt','Spices','Cedarwood']],
+['H24 Hermès Parfum','Hermès','Parfum','Fresh',['Narcissus','Sage','Vetiver']],
+['Terre Hermès Eau Intense Vétiver','Hermès','EDP','Woody',['Vetiver','Grapefruit','Pepper']],
+];
+
+const PERF = P.map(r => ({name:r[0],house:r[1],conc:r[2],family:r[3],notes:r[4]}));
+
+let aC='all', aF='all', aQ='', aS='name';
+
+function fConc(v,b){aC=v;document.querySelectorAll('.btn[data-conc]').forEach(x=>x.classList.remove('active'));b.classList.add('active');render();}
+function fFam(v,b){aF=v;document.querySelectorAll('.btn[data-fam]').forEach(x=>x.classList.remove('active'));b.classList.add('active');render();}
+
+document.getElementById('search').addEventListener('input',e=>{aQ=e.target.value.toLowerCase();render();});
+document.getElementById('sort-select').addEventListener('change',e=>{aS=e.target.value;render();});
+
+function getFiltered(){
+  return PERF.filter(p=>{
+    if(aC!=='all'&&p.conc!==aC)return false;
+    if(aF!=='all'&&p.family!==aF)return false;
+    if(aQ&&!p.name.toLowerCase().includes(aQ)&&!p.house.toLowerCase().includes(aQ)&&!p.notes.some(n=>n.toLowerCase().includes(aQ)))return false;
+    return true;
+  });
+}
+
+function sortP(arr){
+  return[...arr].sort((a,b)=>{
+    if(aS==='name')return a.name.localeCompare(b.name);
+    if(aS==='house')return a.house.localeCompare(b.house)||a.name.localeCompare(b.name);
+    if(aS==='family')return a.family.localeCompare(b.family)||a.name.localeCompare(b.name);
+    if(aS==='strength-desc')return ST[b.conc].p-ST[a.conc].p;
+    if(aS==='strength-asc')return ST[a.conc].p-ST[b.conc].p;
+    return 0;
+  });
+}
+
+function cardHtml(p){
+  const s=ST[p.conc];
+  const fc=FC[p.family]||'#7ec8c0';
+  return`<div class="pc cc-${s.c}">
+    <div class="card-top"><span class="cbadge b${s.c}">${p.conc}</span><div class="fdot" style="background:${fc};"></div></div>
+    <div class="pname">${p.name}</div>
+    <div class="phouse">${p.house}</div>
+    <div class="notes-row">${p.notes.map(n=>`<span class="ntag">${n}</span>`).join('')}</div>
+    <div class="sbar"><div class="sfill s${s.c}" style="width:${s.p}%"></div></div>
+    <div class="slbl">${s.l}</div>
+  </div>`;
+}
+
+const CO=['Parfum','EDP','EDT','EDC'];
+const CL2={Parfum:'Parfum — Pure Perfume',EDP:'Eau de Parfum',EDT:'Eau de Toilette',EDC:'Eau de Cologne'};
+
+function render(){
+  const filt=sortP(getFiltered());
+  document.getElementById('rc').textContent=filt.length+' of '+PERF.length+' fragrances';
+  const cc=document.getElementById('cc');
+  if(!filt.length){cc.innerHTML='<div class="perfume-grid"><div class="empty-msg">No fragrances found</div></div>';updateStats([]);return;}
+
+  if(aS==='strength-desc'||aS==='strength-asc'||aC!=='all'){
+    const grps={};CO.forEach(c=>{grps[c]=[];});
+    filt.forEach(p=>grps[p.conc].push(p));
+    const ord=aS==='strength-asc'?[...CO].reverse():CO;
+    let h='';
+    ord.forEach(c=>{const it=grps[c];if(!it.length)return;h+=`<div><div class="section-header"><div class="section-title">${CL2[c]}</div><div class="section-line"></div><div class="section-count">${it.length} fragrances</div></div><div class="perfume-grid">${it.map(cardHtml).join('')}</div></div>`;});
+    cc.innerHTML=h;
+  } else if(aS==='family'){
+    const grps={};Object.keys(FC).forEach(f=>{grps[f]=[];});
+    filt.forEach(p=>{if(grps[p.family])grps[p.family].push(p);});
+    let h='';
+    Object.keys(FC).forEach(fam=>{const it=grps[fam];if(!it||!it.length)return;h+=`<div><div class="section-header"><div class="fdot" style="background:${FC[fam]};width:9px;height:9px;flex-shrink:0;"></div><div class="section-title">${fam}</div><div class="section-line"></div><div class="section-count">${it.length} fragrances</div></div><div class="perfume-grid">${it.map(cardHtml).join('')}</div></div>`;});
+    cc.innerHTML=h;
+  } else {
+    cc.innerHTML=`<div style="margin-top:10px;"><div class="perfume-grid">${filt.map(cardHtml).join('')}</div></div>`;
+  }
+  updateStats(filt);
+}
+
+function updateStats(f){
+  const cc2={};const fc2={};
+  f.forEach(p=>{cc2[p.conc]=(cc2[p.conc]||0)+1;fc2[p.family]=(fc2[p.family]||0)+1;});
+  const tf=Object.entries(fc2).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('stats-bar').innerHTML=`
+    <div class="stat-item"><span class="stat-num">${f.length}</span><span class="stat-lbl">In Vault</span></div>
+    <div class="stat-item"><span class="stat-num">${cc2['Parfum']||0}</span><span class="stat-lbl">Parfum</span></div>
+    <div class="stat-item"><span class="stat-num">${cc2['EDP']||0}</span><span class="stat-lbl">EDP</span></div>
+    <div class="stat-item"><span class="stat-num">${cc2['EDT']||0}</span><span class="stat-lbl">EDT</span></div>
+    <div class="stat-item"><span class="stat-num">${cc2['EDC']||0}</span><span class="stat-lbl">EDC</span></div>
+    <div class="stat-item"><span class="stat-num">${tf?tf[1]:0}</span><span class="stat-lbl">Top: ${tf?tf[0]:'—'}</span></div>
+  `;
+  document.getElementById('total-count').textContent=PERF.length+' masculine fragrances';
+}
+
+render();
+</script>
